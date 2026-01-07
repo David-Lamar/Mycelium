@@ -260,14 +260,13 @@ func ProcessEq(
 			Type: TYPE_BOOL,
 			Data: false,
 		})
+		return
 	}
 
-	if param1.Data == param2.Data {
-		frame.Stack.Push(Value{
-			Type: TYPE_BOOL,
-			Data: true,
-		})
-	}
+	frame.Stack.Push(Value{
+		Type: TYPE_BOOL,
+		Data: param1.Data == param2.Data,
+	})
 }
 
 func ProcessGt(

@@ -53,12 +53,71 @@ func TestMod(t *testing.T) {
 }
 
 func TestMult(t *testing.T) {
-	// Converts to: 100 % 10
 	var program = base2Pop("MULT")
 
 	frame := baseTest(program, []Value{intValue(3), intValue(7)})
 
 	if frame.Stack.Pop().Data != 21 {
+		t.Fail()
+	}
+}
+
+func TestEq_false(t *testing.T) {
+	var program = base2Pop("EQ")
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	if frame.Stack.Pop().Data != false {
+		t.Fail()
+	}
+}
+
+func TestEq_true(t *testing.T) {
+	var program = base2Pop("EQ")
+
+	frame := baseTest(program, []Value{intValue(3), intValue(3)})
+
+	if frame.Stack.Pop().Data != true {
+		t.Fail()
+	}
+}
+
+func TestLt_true(t *testing.T) {
+	var program = base2Pop("LT")
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	if frame.Stack.Pop().Data != true {
+		t.Fail()
+	}
+}
+
+func TestLt_false(t *testing.T) {
+	var program = base2Pop("LT")
+
+	frame := baseTest(program, []Value{intValue(7), intValue(3)})
+
+	if frame.Stack.Pop().Data != false {
+		t.Fail()
+	}
+}
+
+func TestGt_true(t *testing.T) {
+	var program = base2Pop("GT")
+
+	frame := baseTest(program, []Value{intValue(7), intValue(3)})
+
+	if frame.Stack.Pop().Data != true {
+		t.Fail()
+	}
+}
+
+func TestGt_false(t *testing.T) {
+	var program = base2Pop("GT")
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	if frame.Stack.Pop().Data != false {
 		t.Fail()
 	}
 }
