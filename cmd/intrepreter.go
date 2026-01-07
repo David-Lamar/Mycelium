@@ -1,7 +1,8 @@
 package main
 
 import (
-	"Mycelium/utils"
+	"Mycelium/pkg"
+	"Mycelium/pkg/utils"
 	"encoding/binary"
 	"fmt"
 	"strconv"
@@ -86,7 +87,7 @@ func ParseLine(toParse string) []byte {
 	for _, a := range bytes {
 		b, err := strconv.ParseUint(a, 0, 8)
 		if err != nil {
-			op, err := ParseOp(a)
+			op, err := pkg.ParseOp(a)
 
 			if err != nil {
 				panic(err)
@@ -108,23 +109,23 @@ func Interpret(
 ) {
 
 	for _, statement := range byteCode {
-		switch Op(statement[0]) {
-		case ADD:
+		switch pkg.Op(statement[0]) {
+		case pkg.ADD:
 			ProcessAdd(frame)
 			break
-		case SUB:
+		case pkg.SUB:
 			ProcessSub(frame)
 			break
-		case DIV:
+		case pkg.DIV:
 			ProcessDiv(frame)
 			break
-		case MOD:
+		case pkg.MOD:
 			ProcessMod(frame)
 			break
-		case MULT:
+		case pkg.MULT:
 			ProcessMult(frame)
 			break
-		case LOAD_CONST:
+		case pkg.LOAD_CONST:
 			index := binary.BigEndian.Uint32(statement[1:])
 			ProcessLoadConst(frame, constants, int(index))
 		}
