@@ -165,6 +165,72 @@ ADD
 	}
 }
 
+func TestJumpFalse_positive(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+LOAD_CONST 0
+LOAD_CONST 2
+JUMP_FALSE 3
+LOAD_CONST 1
+LOAD_CONST 1
+ADD
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7), boolValue(false)})
+
+	data := frame.Stack.Pop().Data
+	fmt.Printf("%d\n", data)
+
+	if data != 6 {
+		t.Fail()
+	}
+}
+
+func TestJumpFalse_negative(t *testing.T) {
+	var program = `
+JUMP 2
+JUMP 5
+LOAD_CONST 0
+LOAD_CONST 0
+LOAD_CONST 2
+JUMP_FALSE -4
+POP
+POP
+LOAD_CONST 1
+LOAD_CONST 1
+ADD
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7), boolValue(false)})
+
+	data := frame.Stack.Pop().Data
+
+	if data != 14 {
+		t.Fail()
+	}
+}
+
+func TestJumpFalse_skip(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+LOAD_CONST 0
+LOAD_CONST 2
+JUMP_FALSE 3
+LOAD_CONST 1
+LOAD_CONST 1
+ADD
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7), boolValue(true)})
+
+	data := frame.Stack.Pop().Data
+	fmt.Printf("%d\n", data)
+
+	if data != 14 {
+		t.Fail()
+	}
+}
+
 func TestDup(t *testing.T) {
 	var program = `
 LOAD_CONST 0
@@ -229,6 +295,13 @@ func createFrame() Frame {
 func intValue(value int) Value {
 	return Value{
 		Type: TYPE_INT,
+		Data: value,
+	}
+}
+
+func boolValue(value bool) Value {
+	return Value{
+		Type: TYPE_BOOL,
 		Data: value,
 	}
 }

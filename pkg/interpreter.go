@@ -14,6 +14,7 @@ const (
 	TYPE_FLOAT
 	TYPE_STRUCT
 	TYPE_OBJECT
+	TYPE_ERROR
 )
 
 type Frame struct {
@@ -76,8 +77,16 @@ func Interpret(
 			// TODO: There's gotta be a better way to make a signed int from bytes...
 			ProcessJump(frame, int(int32(offset)))
 			break
-		// TODO: Jump false
-		// TODO: Jump success
+		case JUMP_FALSE:
+			offset := binary.BigEndian.Uint32(statement[1:])
+			// TODO: There's gotta be a better way to make a signed int from bytes...
+			ProcessJumpFalse(frame, int(int32(offset)))
+			break
+		case JUMP_SUCCESS:
+			offset := binary.BigEndian.Uint32(statement[1:])
+			// TODO: There's gotta be a better way to make a signed int from bytes...
+			ProcessJumpSuccess(frame, int(int32(offset)))
+			break
 		// TODO: Call
 		// TODO: return
 		// TODO: make struct
@@ -364,6 +373,20 @@ func ProcessLt(
 
 func ProcessJump(frame *Frame, offset int) {
 	frame.InstructionPointer += offset - 1
+}
+
+func ProcessJumpFalse(frame *Frame, offset int) {
+	popped := frame.Stack.Pop()
+	if popped.Type == TYPE_BOOL && popped.Data == false {
+		frame.InstructionPointer += offset - 1
+	}
+}
+
+func ProcessJumpSuccess(frame *Frame, offset int) {
+	popped := frame.Stack.Pop()
+	if popped.Type != TYPE_ERROR {
+		frame.InstructionPointer += offset - 1
+	}
 }
 
 func ProcessDup(frame *Frame) {
