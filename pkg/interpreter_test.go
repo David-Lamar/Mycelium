@@ -311,6 +311,18 @@ RETURN`
 	}
 }
 
+func TestStoreConst(t *testing.T) {
+	var program = `
+STORE_CONST 0 0
+`
+
+	frame := baseTest(program, []Value{intValue(3)})
+
+	if frame.Local[0].Data != 3 {
+		t.Fail()
+	}
+}
+
 // ---------------------- Helpers --------------------------
 
 func base2Pop(op string) string {

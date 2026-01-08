@@ -110,10 +110,13 @@ func Interpret(
 			index := binary.BigEndian.Uint32(statement[1:])
 			ProcessStoreLocal(frame, int(index))
 			break
+		case STORE_CONST:
+			index := binary.BigEndian.Uint32(statement[1:5])
+			value := binary.BigEndian.Uint32(statement[5:])
+			ProcessStoreConstant(frame, constants, int(index), int(value))
 		}
 
 		// Store field
-		// Store const
 
 		// TODO: Instructions that jump may need to take this into account or continue to skip this.
 		frame.InstructionPointer++
@@ -441,4 +444,18 @@ func ProcessStoreLocal(
 	}
 
 	frame.Local[index] = frame.Stack.Pop()
+}
+
+func ProcessStoreConstant(
+	frame *Frame,
+	constants []Value,
+	index int,
+	value int,
+) {
+	if index < 0 {
+		// TODO: Create an error type and send it up
+	}
+
+	// TODO: may need to do error handling if the index is outside of the range of constants
+	frame.Local[index] = constants[value]
 }
