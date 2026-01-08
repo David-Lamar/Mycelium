@@ -51,10 +51,17 @@ func Interpret(
 		case MULT:
 			ProcessMult(frame)
 			break
-			// TODO: AND
-			// TODO: OR
-			// TODO: NOT
-			// TODO: CMP
+		case AND:
+			ProcessAnd(frame)
+			break
+		case OR:
+			ProcessOr(frame)
+			break
+		case NOT:
+			ProcessNot(frame)
+			break
+		case CMP:
+			ProcessCmp(frame)
 		case EQ:
 			ProcessEq(frame)
 			break
@@ -64,15 +71,23 @@ func Interpret(
 		case GT:
 			ProcessGt(frame)
 			break
-			// TODO: Jump
+		case JUMP:
+			offset := binary.BigEndian.Uint32(statement[1:])
+			// TODO: There's gotta be a better way to make a signed int from bytes...
+			ProcessJump(frame, int(int32(offset)))
+			break
 		// TODO: Jump false
 		// TODO: Jump success
 		// TODO: Call
 		// TODO: return
 		// TODO: make struct
 		// TODO: Make array
-		// TODO: dup
-		// TODO: pop
+		case DUP:
+			ProcessDup(frame)
+			break
+		case POP:
+			ProcessPop(frame)
+			break
 		// TODO: load local
 		// TODO: load field
 		case LOAD_CONST:
@@ -245,6 +260,22 @@ func ProcessMult(
 	// TODO: Return error if type of param1 not supported
 }
 
+func ProcessAnd(frame *Frame) {
+
+}
+
+func ProcessOr(frame *Frame) {
+
+}
+
+func ProcessNot(frame *Frame) {
+
+}
+
+func ProcessCmp(frame *Frame) {
+
+}
+
 func ProcessEq(
 	frame *Frame,
 ) {
@@ -329,4 +360,24 @@ func ProcessLt(
 
 	// TODO: Return error if type of param1 not supported
 
+}
+
+func ProcessJump(frame *Frame, offset int) {
+	frame.InstructionPointer += offset - 1
+}
+
+func ProcessDup(frame *Frame) {
+	if frame.Stack.Size() < 1 {
+		// TODO: Create an error type and send it up
+	}
+
+	frame.Stack.Push(frame.Stack.Top())
+}
+
+func ProcessPop(frame *Frame) {
+	//if frame.Stack.Size() < 1 {
+	//    // TODO: Create an error type and send it up
+	//}
+
+	frame.Stack.Pop()
 }

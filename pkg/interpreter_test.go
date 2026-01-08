@@ -122,6 +122,79 @@ func TestGt_false(t *testing.T) {
 	}
 }
 
+func TestJump_positive(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+LOAD_CONST 0
+JUMP 3
+LOAD_CONST 1
+LOAD_CONST 1
+ADD
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	data := frame.Stack.Pop().Data
+	fmt.Printf("%d\n", data)
+
+	if data != 6 {
+		t.Fail()
+	}
+}
+
+func TestJump_negative(t *testing.T) {
+	var program = `
+JUMP 2
+JUMP 4
+LOAD_CONST 0
+LOAD_CONST 0
+JUMP -3
+POP
+POP
+LOAD_CONST 1
+LOAD_CONST 1
+ADD
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	data := frame.Stack.Pop().Data
+
+	if data != 14 {
+		t.Fail()
+	}
+}
+
+func TestDup(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+DUP
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	if frame.Stack.Size() != 2 {
+		t.Fail()
+	}
+
+	if frame.Stack.Pop().Data != 3 || frame.Stack.Pop().Data != 3 {
+		t.Fail()
+	}
+}
+
+func TestPop(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+POP
+`
+
+	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+
+	if frame.Stack.Size() != 0 {
+		t.Fail()
+	}
+}
+
 // ---------------------- Helpers --------------------------
 
 func base2Pop(op string) string {
