@@ -261,6 +261,33 @@ POP
 	}
 }
 
+func TestStoreLocal(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+STORE_LOCAL 0
+`
+
+	frame := baseTest(program, []Value{intValue(3)})
+
+	if frame.Local[0].Data != 3 {
+		t.Fail()
+	}
+}
+
+func TestLoadLocal(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+STORE_LOCAL 0
+LOAD_LOCAL 0
+`
+
+	frame := baseTest(program, []Value{intValue(3)})
+
+	if frame.Stack.Pop().Data != 3 || frame.Stack.Size() != 0 {
+		t.Fail()
+	}
+}
+
 // ---------------------- Helpers --------------------------
 
 func base2Pop(op string) string {
@@ -287,7 +314,7 @@ func baseTest(
 func createFrame() Frame {
 	return Frame{
 		Stack:              utils.Stack[Value]{},
-		Local:              make([]Value, 0),
+		Local:              make(map[int]Value),
 		InstructionPointer: 0,
 	}
 }

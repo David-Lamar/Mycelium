@@ -19,7 +19,7 @@ const (
 
 type Frame struct {
 	Stack              utils.Stack[Value]
-	Local              []Value
+	Local              map[int]Value
 	InstructionPointer int
 }
 
@@ -97,26 +97,27 @@ func Interpret(
 		case POP:
 			ProcessPop(frame)
 			break
-		// TODO: load local
 		// TODO: load field
+		case LOAD_LOCAL:
+			index := binary.BigEndian.Uint32(statement[1:])
+			ProcessLoadLocal(frame, int(index))
+			break
 		case LOAD_CONST:
 			index := binary.BigEndian.Uint32(statement[1:])
 			ProcessLoadConst(frame, constants, int(index))
 			break
+		case STORE_LOCAL:
+			index := binary.BigEndian.Uint32(statement[1:])
+			ProcessStoreLocal(frame, int(index))
+			break
 		}
+
+		// Store field
+		// Store const
 
 		// TODO: Instructions that jump may need to take this into account or continue to skip this.
 		frame.InstructionPointer++
 	}
-}
-
-func ProcessLoadConst(
-	frame *Frame,
-	constants []Value,
-	index int,
-) {
-	// TODO: may need to do error handling if the index is outside of the range of constants
-	frame.Stack.Push(constants[index])
 }
 
 func ProcessAdd(
@@ -403,4 +404,41 @@ func ProcessPop(frame *Frame) {
 	//}
 
 	frame.Stack.Pop()
+}
+
+func ProcessLoadLocal(
+	frame *Frame,
+	index int,
+) {
+	value, ok := frame.Local[index]
+
+	if !ok {
+		// TODO: Create an error type and send it up
+	}
+
+	frame.Stack.Push(value)
+}
+
+func ProcessLoadConst(
+	frame *Frame,
+	constants []Value,
+	index int,
+) {
+	// TODO: may need to do error handling if the index is outside of the range of constants
+	frame.Stack.Push(constants[index])
+}
+
+func ProcessStoreLocal(
+	frame *Frame,
+	index int,
+) {
+	if frame.Stack.Size() < 1 {
+		// TODO: Create an error type and send it up
+	}
+
+	if index < 0 {
+		// TODO: Create an error type and send it up
+	}
+
+	frame.Local[index] = frame.Stack.Pop()
 }
