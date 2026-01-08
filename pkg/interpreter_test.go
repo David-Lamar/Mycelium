@@ -288,6 +288,29 @@ LOAD_LOCAL 0
 	}
 }
 
+func TestCountTo10(t *testing.T) {
+	var program = `
+LOAD_CONST 0
+STORE_LOCAL 0
+LOAD_LOCAL 0
+LOAD_CONST 1
+LT
+JUMP_FALSE 6
+LOAD_LOCAL 0
+LOAD_CONST 2
+ADD
+STORE_LOCAL 0
+JUMP -8
+LOAD_LOCAL 0
+RETURN`
+
+	frame := baseTest(program, []Value{intValue(0), intValue(10), intValue(1)})
+
+	if frame.Stack.Pop().Data != 10 {
+		t.Fail()
+	}
+}
+
 // ---------------------- Helpers --------------------------
 
 func base2Pop(op string) string {
