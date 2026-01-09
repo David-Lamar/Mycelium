@@ -45,7 +45,7 @@ func main() {
 
 	frame := pkg.Frame{
 		Stack:              utils.Stack[pkg.Value]{},
-		Local:              make([]pkg.Value, 0),
+		Local:              make(map[int]pkg.Value),
 		InstructionPointer: 0,
 	}
 	constants := []pkg.Value{

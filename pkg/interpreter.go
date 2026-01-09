@@ -1,32 +1,8 @@
 package pkg
 
 import (
-	"Mycelium/pkg/utils"
 	"encoding/binary"
 )
-
-type Type int
-
-const (
-	TYPE_INT Type = iota
-	TYPE_BYTE
-	TYPE_BOOL
-	TYPE_FLOAT
-	TYPE_STRUCT
-	TYPE_OBJECT
-	TYPE_ERROR
-)
-
-type Frame struct {
-	Stack              utils.Stack[Value]
-	Local              map[int]Value
-	InstructionPointer int
-}
-
-type Value struct {
-	Type Type
-	Data interface{}
-}
 
 func Interpret(
 	byteCode [][]byte,
@@ -140,10 +116,7 @@ func ProcessAdd(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_INT,
-				Data: pv1 + pv2,
-			})
+			frame.Stack.Push(IntValue(pv1 + pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported
@@ -170,10 +143,7 @@ func ProcessSub(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_INT,
-				Data: pv1 - pv2,
-			})
+			frame.Stack.Push(IntValue(pv1 - pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported
@@ -200,10 +170,7 @@ func ProcessDiv(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_INT,
-				Data: pv1 / pv2,
-			})
+			frame.Stack.Push(IntValue(pv1 / pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported
@@ -230,10 +197,7 @@ func ProcessMod(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_INT,
-				Data: pv1 % pv2,
-			})
+			frame.Stack.Push(IntValue(pv1 % pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported
@@ -260,10 +224,7 @@ func ProcessMult(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_INT,
-				Data: pv1 * pv2,
-			})
+			frame.Stack.Push(IntValue(pv1 * pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported
@@ -300,17 +261,11 @@ func ProcessEq(
 	param1 := frame.Stack.Pop()
 
 	if param1.Type != param2.Type {
-		frame.Stack.Push(Value{
-			Type: TYPE_BOOL,
-			Data: false,
-		})
+		frame.Stack.Push(BoolValue(false))
 		return
 	}
 
-	frame.Stack.Push(Value{
-		Type: TYPE_BOOL,
-		Data: param1.Data == param2.Data,
-	})
+	frame.Stack.Push(BoolValue(param1.Data == param2.Data))
 }
 
 func ProcessGt(
@@ -330,10 +285,7 @@ func ProcessGt(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_BOOL,
-				Data: pv1 > pv2,
-			})
+			frame.Stack.Push(BoolValue(pv1 > pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported
@@ -361,10 +313,7 @@ func ProcessLt(
 		if param2.Type == TYPE_INT {
 			pv2 := param2.Data.(int)
 
-			frame.Stack.Push(Value{
-				Type: TYPE_BOOL,
-				Data: pv1 < pv2,
-			})
+			frame.Stack.Push(BoolValue(pv1 < pv2))
 		}
 
 		// TODO: Return error if type of param2 not supported

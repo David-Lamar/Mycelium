@@ -12,7 +12,7 @@ import (
 func TestLoadConst(t *testing.T) {
 	var program = "LOAD_CONST 0"
 
-	frame := baseTest(program, []Value{intValue(77)})
+	frame := baseTest(program, []Value{IntValue(77)})
 
 	if frame.Stack.Pop().Data != 77 {
 		t.Fail()
@@ -23,7 +23,7 @@ func TestAdd(t *testing.T) {
 	// Converts to: 1 + 2
 	var program = base2Pop("ADD")
 
-	frame := baseTest(program, []Value{intValue(1), intValue(2)})
+	frame := baseTest(program, []Value{IntValue(1), IntValue(2)})
 
 	if frame.Stack.Pop().Data != 3 {
 		t.Fail()
@@ -34,7 +34,7 @@ func TestSub(t *testing.T) {
 	// Converts to: 3 - 1
 	var program = base2Pop("SUB")
 
-	frame := baseTest(program, []Value{intValue(3), intValue(1)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(1)})
 
 	if frame.Stack.Pop().Data != 2 {
 		t.Fail()
@@ -45,7 +45,7 @@ func TestMod(t *testing.T) {
 	// Converts to: 100 % 10
 	var program = base2Pop("MOD")
 
-	frame := baseTest(program, []Value{intValue(100), intValue(10)})
+	frame := baseTest(program, []Value{IntValue(100), IntValue(10)})
 
 	if frame.Stack.Pop().Data != 0 {
 		t.Fail()
@@ -55,7 +55,7 @@ func TestMod(t *testing.T) {
 func TestMult(t *testing.T) {
 	var program = base2Pop("MULT")
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	if frame.Stack.Pop().Data != 21 {
 		t.Fail()
@@ -65,7 +65,7 @@ func TestMult(t *testing.T) {
 func TestEq_false(t *testing.T) {
 	var program = base2Pop("EQ")
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	if frame.Stack.Pop().Data != false {
 		t.Fail()
@@ -75,7 +75,7 @@ func TestEq_false(t *testing.T) {
 func TestEq_true(t *testing.T) {
 	var program = base2Pop("EQ")
 
-	frame := baseTest(program, []Value{intValue(3), intValue(3)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(3)})
 
 	if frame.Stack.Pop().Data != true {
 		t.Fail()
@@ -85,7 +85,7 @@ func TestEq_true(t *testing.T) {
 func TestLt_true(t *testing.T) {
 	var program = base2Pop("LT")
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	if frame.Stack.Pop().Data != true {
 		t.Fail()
@@ -95,7 +95,7 @@ func TestLt_true(t *testing.T) {
 func TestLt_false(t *testing.T) {
 	var program = base2Pop("LT")
 
-	frame := baseTest(program, []Value{intValue(7), intValue(3)})
+	frame := baseTest(program, []Value{IntValue(7), IntValue(3)})
 
 	if frame.Stack.Pop().Data != false {
 		t.Fail()
@@ -105,7 +105,7 @@ func TestLt_false(t *testing.T) {
 func TestGt_true(t *testing.T) {
 	var program = base2Pop("GT")
 
-	frame := baseTest(program, []Value{intValue(7), intValue(3)})
+	frame := baseTest(program, []Value{IntValue(7), IntValue(3)})
 
 	if frame.Stack.Pop().Data != true {
 		t.Fail()
@@ -115,7 +115,7 @@ func TestGt_true(t *testing.T) {
 func TestGt_false(t *testing.T) {
 	var program = base2Pop("GT")
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	if frame.Stack.Pop().Data != false {
 		t.Fail()
@@ -132,7 +132,7 @@ LOAD_CONST 1
 ADD
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	data := frame.Stack.Pop().Data
 	fmt.Printf("%d\n", data)
@@ -156,7 +156,7 @@ LOAD_CONST 1
 ADD
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	data := frame.Stack.Pop().Data
 
@@ -176,7 +176,7 @@ LOAD_CONST 1
 ADD
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7), boolValue(false)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7), BoolValue(false)})
 
 	data := frame.Stack.Pop().Data
 	fmt.Printf("%d\n", data)
@@ -201,7 +201,7 @@ LOAD_CONST 1
 ADD
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7), boolValue(false)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7), BoolValue(false)})
 
 	data := frame.Stack.Pop().Data
 
@@ -221,7 +221,7 @@ LOAD_CONST 1
 ADD
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7), boolValue(true)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7), BoolValue(true)})
 
 	data := frame.Stack.Pop().Data
 	fmt.Printf("%d\n", data)
@@ -237,7 +237,7 @@ LOAD_CONST 0
 DUP
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	if frame.Stack.Size() != 2 {
 		t.Fail()
@@ -254,7 +254,7 @@ LOAD_CONST 0
 POP
 `
 
-	frame := baseTest(program, []Value{intValue(3), intValue(7)})
+	frame := baseTest(program, []Value{IntValue(3), IntValue(7)})
 
 	if frame.Stack.Size() != 0 {
 		t.Fail()
@@ -267,7 +267,7 @@ LOAD_CONST 0
 STORE_LOCAL 0
 `
 
-	frame := baseTest(program, []Value{intValue(3)})
+	frame := baseTest(program, []Value{IntValue(3)})
 
 	if frame.Local[0].Data != 3 {
 		t.Fail()
@@ -281,7 +281,7 @@ STORE_LOCAL 0
 LOAD_LOCAL 0
 `
 
-	frame := baseTest(program, []Value{intValue(3)})
+	frame := baseTest(program, []Value{IntValue(3)})
 
 	if frame.Stack.Pop().Data != 3 || frame.Stack.Size() != 0 {
 		t.Fail()
@@ -304,7 +304,7 @@ JUMP -8
 LOAD_LOCAL 0
 RETURN`
 
-	frame := baseTest(program, []Value{intValue(0), intValue(10), intValue(1)})
+	frame := baseTest(program, []Value{IntValue(0), IntValue(10), IntValue(1)})
 
 	if frame.Stack.Pop().Data != 10 {
 		t.Fail()
@@ -316,7 +316,7 @@ func TestStoreConst(t *testing.T) {
 STORE_CONST 0 0
 `
 
-	frame := baseTest(program, []Value{intValue(3)})
+	frame := baseTest(program, []Value{IntValue(3)})
 
 	if frame.Local[0].Data != 3 {
 		t.Fail()
@@ -351,19 +351,5 @@ func createFrame() Frame {
 		Stack:              utils.Stack[Value]{},
 		Local:              make(map[int]Value),
 		InstructionPointer: 0,
-	}
-}
-
-func intValue(value int) Value {
-	return Value{
-		Type: TYPE_INT,
-		Data: value,
-	}
-}
-
-func boolValue(value bool) Value {
-	return Value{
-		Type: TYPE_BOOL,
-		Data: value,
 	}
 }
