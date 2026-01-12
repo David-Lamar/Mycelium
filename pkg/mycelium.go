@@ -20,8 +20,33 @@ type Mycelium struct {
 
 func (m *Mycelium) Call(
 	id string,
-	arguments []Value,
-	returnFrame int,
+	frame Frame,
 ) {
+
+	// TODO:
+	// 	1. Look into the function manifest and find the function
+	// 	2. Check how many inputs the function has and the types
+	// 	3. Pop all of the inputs off the stack; raise an error if something isn't correct
+	// 	4. Get the current frame's ID to know where return goes
+	// 	5. IF the function has no outputs, skip the return register stuff. It's fire & forget.
+	// 	6. Identify an open return register on the frame and reserve it (Now we have frame & register to return to)
+	// 	7. IF the function has outputs, Insert the register value with "available" set to false
+	// 	8. IF the function has outputs, push the return register index to the stack
+	// 	9. Send it to the "router" -- Router will just run locally for now.
+	// 	10. Increment program counter, etc. and continue execution until LOAD_RETURN is called
+	// 	11. If LOAD_RETURN is called and the register is not populated, the frame goes into a paused state and execution stops.
+
+	// TODO: (Continuation of step 9 above.
+	// 	9.1: Router gets the function info (arguments, where it returns, etc.)
+	// 	9.2: Router schedules the function execution and starts profiling if enabled
+	// 	9.3: Function is executed
+	// 	9.4: Function "RETURN" op is called
+	// 	9.5: Identify where this function was called from so where know where to send its return values (if there are any -- otherwise skip)
+	// 	9.6: Send it to the "router" similar to a function call
+	// 	9.7: Original VM gets the return
+	// 	9.8: VM identifies the original function frame
+	// 	9.9: VM populates the return register on the function frame
+	// 	9.10: If the function is in a paused state due to this register's LOAD_RETURN, resume.
+	// 	9.11: Profile aggregation is done if profile is underway.
 
 }

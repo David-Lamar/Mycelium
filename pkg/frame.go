@@ -19,6 +19,11 @@ type Frame struct {
 	Local              map[int]Value
 	Return             map[int]ReturnRegister
 	InstructionPointer int
+
+	// TODO: A "state" for if it's paused or running
+	// TODO: A mutex or _something_ for the Return registers.
+	// 	Could get into bad problems where the return register and state are updated on separate threads leading to values not actually being present
+	// TODO: Needs an ID
 }
 
 type ReturnRegister struct {

@@ -16,3 +16,10 @@ Each function is essentially a nanoservice and can run on any machine within the
 6. Begin Semantic Hashing investigation
 7. Begin Spore language design (Design language, implement ANTLR spec, build compiler, etc.)
 8. Begin self-organization work
+
+### Additional Goals/ Plans/ Misc. Sub-projects
+- Graphic visualizer & interaction for network & node behavior & simulation
+  - Would be nice to see pulse messages through the system (and how it diminishes further it goes)
+  - Would be nice to see connection strengths, etc.
+  - Would be nice to be able to sever entire network segments and/or core regional connections to see how it heals itself
+  - 

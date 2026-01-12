@@ -4,9 +4,14 @@ type Function struct {
 	ID      string
 	Profile Profile
 	// TODO: For the types, we'll likely want to make sure that custom types (like structs) are accounted for as unique
-	Inputs   []Type
-	Outputs  []Type
+	Inputs  []Type
+	Outputs []Type
+
+	Loaded   bool
 	Bytecode [][]byte
+
+	// TODO: The location of the function on disk if not loaded; _or_ a way to find it.
+
 }
 
 type Profile struct {
