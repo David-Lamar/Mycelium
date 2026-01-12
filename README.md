@@ -8,7 +8,7 @@ Each function is essentially a nanoservice and can run on any machine within the
 
 
 ### Tentative Plan:
-1. Build out the interpreter for Mycelium Bytecode for _most_ operations ("CALL" will be local only)
+1. ~~Build out (most of) the interpreter for Mycelium Bytecode for _most_ operations ("CALL" will be local only)~~
 2. Implement Mycelium networking (connecting different machines, sending messages back and forth)
 3. Implement the "CALL" bytecode op to take advantage of multiple machines
 4. Build "Object"/ Plugin system for machine-dependent and non-pure functions
