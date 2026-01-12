@@ -337,11 +337,19 @@ func baseTest(
 	program string,
 	constants []Value,
 ) Frame {
+	m := Mycelium{
+		ID:           "",
+		ConstantPool: nil,
+		Frames:       nil,
+		Functions:    nil,
+		FrameCounter: 0,
+	}
+
 	bytecode := Parse(program)
 
 	frame := createFrame()
 
-	Interpret(bytecode, &frame, constants)
+	Interpret(&m, bytecode, &frame, constants)
 
 	return frame
 }

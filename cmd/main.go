@@ -2,74 +2,67 @@ package main
 
 import (
 	"Mycelium/pkg"
-	"Mycelium/pkg/utils"
-	"fmt"
+	"log/slog"
+	"os"
 	"time"
 )
 
-var program = `
+var function1 = `
 LOAD_CONST 0
 LOAD_CONST 1
-ADD
+CALL 1
+LOAD_RETURN
+`
 
-LOAD_CONST 1
-LOAD_CONST 1
-SUB
-
-LOAD_CONST 1
-LOAD_CONST 1
-MOD
-
-LOAD_CONST 1
-LOAD_CONST 1
-MULT`
-
-// Goal!
-var countTo10 = `
-LOAD_CONST 0
-STORE_LOCAL 0
-
+// Add
+var function2 = `
 LOAD_LOCAL 0
-LOAD_CONST 1
-LT
-JUMP_FALSE 6
-LOAD_LOCAL 0
-LOAD_CONST 2
+LOAD_LOCAL 1
 ADD
-STORE_LOCAL 0
-JUMP -6
-RETURN`
+RETURN
+`
 
 func main() {
-	bytecode := pkg.Parse(program)
+	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	f1 := pkg.Function{
+		ID:       0,
+		Profile:  pkg.Profile{},
+		Inputs:   []pkg.Type{},
+		Outputs:  []pkg.Type{},
+		Loaded:   true,
+		Bytecode: pkg.Parse(function1),
+	}
 
-	frame := pkg.Frame{
-		Stack:              utils.Stack[pkg.Value]{},
-		Local:              make(map[int]pkg.Value),
-		InstructionPointer: 0,
+	f2 := pkg.Function{
+		ID:       1,
+		Profile:  pkg.Profile{},
+		Inputs:   []pkg.Type{pkg.TYPE_INT, pkg.TYPE_INT},
+		Outputs:  []pkg.Type{pkg.TYPE_INT},
+		Loaded:   true,
+		Bytecode: pkg.Parse(function2),
 	}
-	constants := []pkg.Value{
-		{
-			Type: pkg.TYPE_INT,
-			Data: 1,
-		},
-		{
-			Type: pkg.TYPE_INT,
-			Data: 2,
-		},
+
+	my := pkg.Mycelium{
+		ID:           "",
+		ConstantPool: []pkg.Value{pkg.IntValue(3), pkg.IntValue(7)},
+		Frames:       make(map[int]*pkg.Frame),
+		Functions:    make(map[int]pkg.Function),
+		FrameCounter: 1,
+		Log:          log,
 	}
+
+	my.Functions[0] = f1
+	my.Functions[1] = f2
+
+	time.Sleep(50 * time.Millisecond)
+
+	// TODO: Need a way to call without returning to an original frame. Both for init and for fire and forget
+	my.Call(0, 0)
 
 	// Provides a little space between parsing and running
 	// since running happens faster than printing does usually, and prints out of order
-	time.Sleep(50 * time.Millisecond)
 
-	pkg.Interpret(bytecode, &frame, constants)
+	endFrame := my.Frames[1]
+	log.Debug("End frame stack value!", "DATA:", endFrame.Stack.Pop().Data)
 
-	for {
-		if frame.Stack.Size() == 0 {
-			break
-		}
-
-		fmt.Printf("%d\n", frame.Stack.Pop().Data)
-	}
 }

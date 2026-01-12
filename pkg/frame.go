@@ -15,10 +15,15 @@ const (
 )
 
 type Frame struct {
-	Stack              utils.Stack[Value]
-	Local              map[int]Value
-	Return             map[int]ReturnRegister
-	InstructionPointer int
+	ParentId             int
+	ParentReturnRegister int
+	Id                   int
+	FunctionID           int
+	Stack                utils.Stack[Value]
+	Local                map[int]Value
+	Return               map[int]ReturnRegister
+	ReturnCounter        int
+	InstructionPointer   int
 
 	// TODO: A "state" for if it's paused or running
 	// TODO: A mutex or _something_ for the Return registers.

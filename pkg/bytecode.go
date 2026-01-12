@@ -35,9 +35,10 @@ const (
 	DUP Op = 0xB0
 	POP Op = 0xB1
 
-	LOAD_LOCAL Op = 0xB8
-	LOAD_FIELD Op = 0xB9
-	LOAD_CONST Op = 0xBA
+	LOAD_LOCAL  Op = 0xB8
+	LOAD_FIELD  Op = 0xB9
+	LOAD_CONST  Op = 0xBA
+	LOAD_RETURN Op = 0xBB
 
 	STORE_LOCAL Op = 0xC0
 	STORE_FIELD Op = 0xC1
@@ -96,6 +97,8 @@ func ParseOp(text string) (Op, error) {
 		return LOAD_FIELD, nil
 	case "LOAD_CONST":
 		return LOAD_CONST, nil
+	case "LOAD_RETURN":
+		return LOAD_RETURN, nil
 	case "STORE_LOCAL":
 		return STORE_LOCAL, nil
 	case "STORE_FIELD":

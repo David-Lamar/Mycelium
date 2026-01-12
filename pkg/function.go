@@ -1,7 +1,7 @@
 package pkg
 
 type Function struct {
-	ID      string
+	ID      int
 	Profile Profile
 	// TODO: For the types, we'll likely want to make sure that custom types (like structs) are accounted for as unique
 	Inputs  []Type

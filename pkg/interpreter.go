@@ -4,7 +4,10 @@ import (
 	"encoding/binary"
 )
 
+// TODO: This should be a struct with functions on it so that it can be instanciated _within_ a mycelium instance
+
 func Interpret(
+	mycelium *Mycelium,
 	byteCode [][]byte,
 	frame *Frame,
 	constants []Value,
@@ -63,8 +66,13 @@ func Interpret(
 			// TODO: There's gotta be a better way to make a signed int from bytes...
 			ProcessJumpSuccess(frame, int(int32(offset)))
 			break
-		// TODO: Call
-		// TODO: return
+		case CALL:
+			functionId := binary.BigEndian.Uint32(statement[1:])
+			mycelium.Call(int(functionId), frame.Id)
+			break
+		case RETURN:
+			mycelium.Return(frame.Id)
+			break
 		// TODO: make struct
 		// TODO: Make array
 		case DUP:
@@ -81,6 +89,9 @@ func Interpret(
 		case LOAD_CONST:
 			index := binary.BigEndian.Uint32(statement[1:])
 			ProcessLoadConst(frame, constants, int(index))
+			break
+		case LOAD_RETURN:
+			ProcessLoadReturn(frame)
 			break
 		case STORE_LOCAL:
 			index := binary.BigEndian.Uint32(statement[1:])
@@ -378,6 +389,32 @@ func ProcessLoadConst(
 ) {
 	// TODO: may need to do error handling if the index is outside of the range of constants
 	frame.Stack.Push(constants[index])
+}
+
+// TODO: Load return should probably load a _specific_ return value
+
+func ProcessLoadReturn(
+	frame *Frame,
+) {
+	// TODO: may need to do error handling if the index is outside of the range of constants
+	value := frame.Stack.Pop()
+
+	if value.Type != TYPE_INT {
+		// TODO: Return some kind of error
+		panic("TODO")
+	}
+
+	// TODO: Handle blocking if the return register isn't ready.
+
+	if !frame.Return[value.Data.(int)].Available {
+		panic("TODO: Handle not-ready returns")
+	}
+
+	data := frame.Return[value.Data.(int)].Data
+
+	for _, j := range data {
+		frame.Stack.Push(j)
+	}
 }
 
 func ProcessStoreLocal(
