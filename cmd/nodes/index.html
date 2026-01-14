@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        #mynetwork {
+            width: 100%;
+            height: 800px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div id="mynetwork"></div>
+
+<script>
+    const container = document.getElementById('mynetwork');
+
+    const nodes = new vis.DataSet([])
+    const edges = new vis.DataSet([])
+
+    let oldNodes = new Set([])
+    let oldEdges = new Set([])
+
+    function update() {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "http://localhost:8080/graph", false); // false for synchronous request
+        xmlHttp.send(null);
+        var data = JSON.parse(xmlHttp.responseText)
+
+        var newNodes = new Set(data.Nodes)
+        var newEdges = new Set(data.Edges.map((item) => {
+            return item.Id
+        }))
+
+        let nodesToRemove = oldNodes.difference(newNodes)
+        let edgesToRemove = oldEdges.difference(newEdges)
+
+        // Add new Nodes
+        for (let i = 0, j = data.Nodes.length; i < j; i++) {
+            if (oldNodes.has(data.Nodes[i])) continue
+            nodes.add({
+                id: data.Nodes[i],
+                label: `${data.Nodes[i]}`
+            })
+        }
+
+        // Add new edges
+        for (let i = 0, j = data.Edges.length; i < j; i++) {
+            let edge = data.Edges[i]
+            if (oldEdges.has(edge.Id)) continue
+
+            edges.add({
+                id: edge.Id,
+                to: edge.To,
+                from: edge.From,
+                label: `${edge.Distance}`,
+            })
+        }
+
+        for (const value of nodesToRemove) {
+            nodes.remove(value)
+        }
+
+        for (const value of edgesToRemove) {
+            edges.remove(value)
+        }
+
+        oldNodes = newNodes
+        oldEdges = newEdges
+    }
+
+    window.setInterval(update, 1000)
+
+    const options = {
+        edges: {
+            font: {align: 'middle'},
+            arrows: {to: false},
+            smooth: {
+                enabled: false,
+            },
+        },
+        physics: {
+            enabled: true
+        },
+    };
+
+    const network = new vis.Network(container, {nodes, edges}, options);
+
+</script>
+</body>
+</html>

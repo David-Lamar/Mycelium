@@ -1,112 +1,114 @@
 package main
 
 import (
-	"fmt"
-	"math"
+	"github.com/gin-gonic/gin"
+	"log"
 	"math/rand/v2"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
 
 // Handles up to 1 million fairly well during configure
 
-const NODE_COUNT = 100
+const NODE_COUNT = 10
+
+var reporter = Reporter{
+	nodes: make([]int, 0),
+	edges: make([]Edge, 0),
+}
 
 func main() {
 
-	// TODO: Each node needs to have a way to communicate to its neighbors
-	// TODO: When each node is added, it should be added to a single node and move through the network to its optimal spot
-	// TODO: When a node is added, it's _provided_ to a specific node but not connected. It will move through the network to find optimal placement
 	// TODO: Handle deleting a node and how a node will handle that error
 	// TODO: Handle communication between nodes (heartbeat kind of thing)
 
 	var nodes []*Node
 
-	for i := 0; i <= NODE_COUNT; i++ {
-		node := &Node{
-			Id: i,
-			X:  rand.IntN(NODE_COUNT * 10),
-			Y:  rand.IntN(NODE_COUNT * 10),
+	go func() {
+		for {
+			println("TICK")
+			for _, n := range nodes {
+				n.RunChan <- Exec{fn: func(n *Node) {
+					n.Tick()
+				}}
+			}
+
+			time.Sleep(time.Second) // Tick per second
 		}
+	}()
+
+	go StartServer()
+
+	for i := 0; i <= NODE_COUNT; i++ {
+		node := NewNode(i)
 
 		nodes = append(nodes, node)
 
+		reporter.NewNode(node.Id)
+
+		// TODO: can add random sleeps here to make it so  that nodes get different ages
+
 		if i > 0 {
-			node.Configure(nodes[0])
+			// Create a random grid at first. Then afterward, each node will randomly re-configure
+			node.ConfigureV2(nodes[rand.IntN(i)])
 		}
+
+		time.Sleep(time.Second)
+	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+
+	for _, n := range nodes {
+		n.Stop()
 	}
 }
 
-type Node struct {
-	Id int
-	X  int // X position which determines its "closeness" to other nodes
-	Y  int // Y position which determines its "closeness" to other nodes
+func StartServer() {
+	r := gin.Default()
 
-	Primary   []*Node
-	Secondary []*Node
-}
+	r.Use(CORSMiddleware()) // Allows all origins
 
-func (n *Node) DistanceTo(node *Node) int {
-	xDiff := math.Pow(float64(n.X-node.X), 2)
-	yDiff := math.Pow(float64(n.Y-node.Y), 2)
+	// Define a simple GET endpoint
+	r.GET("/graph", func(c *gin.Context) {
+		// Return JSON response
+		c.JSON(http.StatusOK, reporter.GetDoc())
+	})
 
-	return int(math.Sqrt(xDiff + yDiff))
-}
-
-func (n *Node) Configure(start *Node) {
-	// If the network only has 1 node!
-	startPrimeLength := len(start.Primary)
-
-	if startPrimeLength == 0 {
-		fmt.Printf("Node %d configured against an empty node %d\n", n.Id, start.Id)
-		start.Primary = append(start.Primary, n)
-		n.Primary = append(n.Primary, start)
-		return
-	}
-
-	dToS := n.DistanceTo(start)
-	minD := NODE_COUNT * 10 * 3
-	minI := -1
-
-	// If dToS is less than ALL other values, connect to dToS
-	// Otherwise, call Configure against the closest one
-
-	for i, p := range start.Primary {
-		newD := n.DistanceTo(p)
-		if newD < minD {
-			minD = newD
-			minI = i
+	r.GET("/", func(c *gin.Context) {
+		// read from file
+		data, err := os.ReadFile("/Users/davidlamar/Projects/Mycelium/cmd/nodes/index.html")
+		if err != nil {
+			// error handler
 		}
-	}
 
-	//fmt.Printf("Configuring %d against %d. Distance: %d. MinD: %d\n", n.Id, start.Id, dToS, minD)
+		c.Header("Content-Type", "text/html")
 
-	// TODO: I don't think this necessarily accounts for local minima. It'll need to also re-organize based on secondaries
-	if dToS <= minD { // "Start" is already the closest node
-		if startPrimeLength < 3 { // We have a non-full primary!
-			start.Primary = append(start.Primary, n)
-			n.Primary = append(n.Primary, start)
-			fmt.Printf("Node %d configured on a semi-empty node %d\n", n.Id, start.Id)
-		} else { // We need to splice the graph
-			other := start.Primary[minI]
-			fmt.Printf("Node %d spliced between %d and %d\n", n.Id, start.Id, other.Id)
+		_, _ = c.Writer.Write(data)
+	})
 
-			n.Primary = append(n.Primary, other)
-			n.Primary = append(n.Primary, start)
-			other.Primary[other.FindPrimary(start.Id)] = n
-			start.Primary[minI] = n
-		}
-	} else {
-		n.Configure(start.Primary[minI])
+	// Start server on port 8080 (default)
+	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
+	if err := r.Run(); err != nil {
+		log.Fatalf("failed to run server: %v", err)
 	}
 }
 
-// FindPrimary Returns the index of the primary connection with the specified ID
-func (n *Node) FindPrimary(id int) int {
-	for i, j := range n.Primary {
-		if j.Id == id {
-			fmt.Printf("Found primary at position %d\n", i)
-			return i
-		}
-	}
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 
-	panic("Somehow tried to find ID that wasn't on a node.")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }
