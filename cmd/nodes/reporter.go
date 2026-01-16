@@ -15,6 +15,10 @@ type Edge struct {
 type Reporter struct {
 	nodes []int
 	edges []Edge
+
+	// TODO: Have "events" that span 1 "tick"
+	// 	Each pull from the web side will retrieve all of the events that happened in the previous tick
+	// 	Then that list will get cleared to get ready for the next one. This will batch things like communication between nodes, etc.
 }
 
 func (r *Reporter) NewNode(id int) {

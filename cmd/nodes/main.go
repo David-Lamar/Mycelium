@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"github.com/gin-gonic/gin"
 	"log"
 	"math/rand/v2"
@@ -9,6 +10,9 @@ import (
 	"os/signal"
 	"time"
 )
+
+//go:embed index.html
+var indexHTML []byte
 
 // Handles up to 1 million fairly well during configure
 
@@ -35,13 +39,15 @@ func main() {
 				}}
 			}
 
-			time.Sleep(time.Second) // Tick per second
+			time.Sleep(1 * time.Second) // Tick per second
 		}
 	}()
 
 	go StartServer()
 
 	for i := 0; i <= NODE_COUNT; i++ {
+		time.Sleep(1000 * time.Millisecond)
+
 		node := NewNode(i)
 
 		nodes = append(nodes, node)
@@ -55,7 +61,6 @@ func main() {
 			node.ConfigureV2(nodes[rand.IntN(i)])
 		}
 
-		time.Sleep(time.Second)
 	}
 
 	c := make(chan os.Signal, 1)
@@ -70,28 +75,18 @@ func main() {
 func StartServer() {
 	r := gin.Default()
 
-	r.Use(CORSMiddleware()) // Allows all origins
+	r.Use(CORSMiddleware())
 
-	// Define a simple GET endpoint
 	r.GET("/graph", func(c *gin.Context) {
-		// Return JSON response
 		c.JSON(http.StatusOK, reporter.GetDoc())
 	})
 
 	r.GET("/", func(c *gin.Context) {
-		// read from file
-		data, err := os.ReadFile("/Users/davidlamar/Projects/Mycelium/cmd/nodes/index.html")
-		if err != nil {
-			// error handler
-		}
-
 		c.Header("Content-Type", "text/html")
 
-		_, _ = c.Writer.Write(data)
+		_, _ = c.Writer.Write(indexHTML)
 	})
 
-	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
 	if err := r.Run(); err != nil {
 		log.Fatalf("failed to run server: %v", err)
 	}

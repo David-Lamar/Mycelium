@@ -19,6 +19,8 @@ type Message struct {
 	Type       MessageType // The type of message this is
 }
 
+// TODO: This should happen during a tick. Otherwise nodes will work more quickly than we can simulate
+
 func (n *Node) SendMessage(t MessageType) {
 	message := Message{
 		Id:         int(time.Now().UnixMilli()),
