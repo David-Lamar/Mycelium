@@ -31,7 +31,7 @@ func (n *Node) SendMessage(t MessageType) {
 	}
 
 	for _, node := range n.Primary {
-		node.ReceiveMessage(message)
+		node.To.ReceiveMessage(message)
 	}
 }
 
@@ -42,11 +42,11 @@ func (n *Node) PropagateMessage(message Message) {
 	message.Hop = message.Hop + 1
 
 	for _, node := range n.Primary {
-		if node.Id == dontSend {
+		if node.To.Id == dontSend {
 			continue
 		}
 
-		node.ReceiveMessage(message)
+		node.To.ReceiveMessage(message)
 	}
 }
 

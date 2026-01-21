@@ -301,8 +301,7 @@ LOAD_CONST 2
 ADD
 STORE_LOCAL 0
 JUMP -8
-LOAD_LOCAL 0
-RETURN`
+LOAD_LOCAL 0`
 
 	frame := baseTest(program, []Value{IntValue(0), IntValue(10), IntValue(1)})
 

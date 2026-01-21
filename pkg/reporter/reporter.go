@@ -1,4 +1,4 @@
-package main
+package reporter
 
 import (
 	"fmt"
@@ -19,6 +19,13 @@ type Reporter struct {
 	// TODO: Have "events" that span 1 "tick"
 	// 	Each pull from the web side will retrieve all of the events that happened in the previous tick
 	// 	Then that list will get cleared to get ready for the next one. This will batch things like communication between nodes, etc.
+}
+
+func NewReporter() *Reporter {
+	return &Reporter{
+		nodes: make([]int, 0),
+		edges: make([]Edge, 0),
+	}
 }
 
 func (r *Reporter) NewNode(id int) {
@@ -51,5 +58,9 @@ func (r *Reporter) GetDoc() gin.H {
 }
 
 func getId(a int, b int) int {
-	return (a+b)*(a+b+1)/2 + b
+	if a < b {
+		return (a+b)*(a+b+1)/2 + b
+	} else {
+		return (b+a)*(b+a+1)/2 + a
+	}
 }

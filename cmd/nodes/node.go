@@ -10,14 +10,18 @@ type Exec struct {
 	fn func(n *Node)
 }
 
+type Connection struct {
+	To     *Node
+	Weight int
+}
+
 type Node struct {
 	Id  int
 	X   int // X position which determines its "closeness" to other nodes
 	Y   int // Y position which determines its "closeness" to other nodes
 	Age int
 
-	Primary   []*Node
-	Secondary []*Node
+	Primary []Connection
 
 	Available bool
 

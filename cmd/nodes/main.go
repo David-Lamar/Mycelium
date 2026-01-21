@@ -1,6 +1,8 @@
 package main
 
 import (
+	"Mycelium/pkg/graph"
+	reporter2 "Mycelium/pkg/reporter"
 	_ "embed"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -18,10 +20,9 @@ var indexHTML []byte
 
 const NODE_COUNT = 10
 
-var reporter = Reporter{
-	nodes: make([]int, 0),
-	edges: make([]Edge, 0),
-}
+var reporter = reporter2.NewReporter()
+
+var graphTest = graph.NewGraph()
 
 func main() {
 
@@ -31,6 +32,9 @@ func main() {
 	var nodes []*Node
 
 	go func() {
+		// Initial 3-second delay to allow the initial configuration to stabilize
+		time.Sleep(3000 * time.Millisecond)
+
 		for {
 			println("TICK")
 			for _, n := range nodes {
@@ -46,7 +50,7 @@ func main() {
 	go StartServer()
 
 	for i := 0; i <= NODE_COUNT; i++ {
-		time.Sleep(1000 * time.Millisecond)
+		//time.Sleep(1000 * time.Millisecond)
 
 		node := NewNode(i)
 
@@ -58,10 +62,36 @@ func main() {
 
 		if i > 0 {
 			// Create a random grid at first. Then afterward, each node will randomly re-configure
-			node.ConfigureV2(nodes[rand.IntN(i)])
+			//node.ConfigureV2(nodes[rand.IntN(i)])
 		}
 
 	}
+
+	// Graph Test:
+	go func() {
+		next := 6
+		n := []int{1, 2, 3, 4, 5}
+
+		graphTest.FullyConnected(distance, n...)
+
+		time.Sleep(5 * time.Second)
+
+		go func() {
+			for {
+				graphTest.Disconnect()
+				time.Sleep(1 * time.Second)
+			}
+		}()
+
+		go func() {
+			for {
+				time.Sleep(5 * time.Second)
+				graphTest.PartiallyConnected(distance, next, rand.IntN(next-1)+1)
+				next++
+			}
+		}()
+
+	}()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -72,13 +102,18 @@ func main() {
 	}
 }
 
+func distance(a int, b int) int {
+	return a + b + 1
+}
+
 func StartServer() {
 	r := gin.Default()
 
 	r.Use(CORSMiddleware())
 
 	r.GET("/graph", func(c *gin.Context) {
-		c.JSON(http.StatusOK, reporter.GetDoc())
+		//c.JSON(http.StatusOK, reporter.GetDoc())
+		c.JSON(http.StatusOK, graphTest.Export())
 	})
 
 	r.GET("/", func(c *gin.Context) {

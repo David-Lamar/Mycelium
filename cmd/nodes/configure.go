@@ -12,6 +12,8 @@ func (n *Node) Reconfigure() {
 	// 	As long as reconfiguration is happening, lazy maintains. But if we reconfigure and it doesn't result in a change. Make more lazy
 	// 	Eventually, it becomes so lazy that no change happens except for rarely. UNTIL another node says "Hey! I'm new!" then lazy is reset?
 
+	// TODO: Before reconfiguration, we really should try and find a space that's semi-optimal to live.
+
 	switch {
 	case primaryLen < 2:
 		// TODO: Force a reconfiguration
@@ -25,53 +27,53 @@ func (n *Node) Reconfigure() {
 	}
 }
 
-func (n *Node) ConfigureV2(start *Node) {
-	if len(start.Primary) < 3 {
-		n.Join(start)
-	} else {
-		n.SpliceBetween(start, start.Primary[0])
-	}
-}
+//func (n *Node) ConfigureV2(start *Node) {
+//	if len(start.Primary) < 3 {
+//		n.Join(start)
+//	} else {
+//		n.SpliceBetween(start, start.Primary[0])
+//	}
+//}
 
-func (n *Node) Join(other *Node) {
-	n.Primary = append(n.Primary, other)
-	other.Primary = append(other.Primary, n)
+//func (n *Node) Join(other *Node) {
+//	n.Primary = append(n.Primary, other)
+//	other.Primary = append(other.Primary, n)
+//
+//	reporter.NewEdge(Edge{
+//		From:     n.Id,
+//		To:       other.Id,
+//		Distance: n.DistanceTo(other),
+//	})
+//}
 
-	reporter.NewEdge(Edge{
-		From:     n.Id,
-		To:       other.Id,
-		Distance: n.DistanceTo(other),
-	})
-}
-
-func (n *Node) SpliceBetween(first *Node, second *Node) {
-	fs := first.FindPrimary(second.Id)
-	sf := second.FindPrimary(first.Id)
-
-	reporter.RemoveEdge(Edge{
-		From:     first.Id,
-		To:       second.Id,
-		Distance: 0,
-	})
-
-	n.Primary = append(n.Primary, first)
-	n.Primary = append(n.Primary, second)
-
-	reporter.NewEdge(Edge{
-		From:     first.Id,
-		To:       n.Id,
-		Distance: n.DistanceTo(first),
-	})
-
-	reporter.NewEdge(Edge{
-		From:     second.Id,
-		To:       n.Id,
-		Distance: n.DistanceTo(second),
-	})
-
-	first.Primary[fs] = n
-	second.Primary[sf] = n
-}
+//func (n *Node) SpliceBetween(first *Node, second *Node) {
+//	fs := first.FindPrimary(second.Id)
+//	sf := second.FindPrimary(first.Id)
+//
+//	reporter.RemoveEdge(Edge{
+//		From:     first.Id,
+//		To:       second.Id,
+//		Distance: 0,
+//	})
+//
+//	n.Primary = append(n.Primary, first)
+//	n.Primary = append(n.Primary, second)
+//
+//	reporter.NewEdge(Edge{
+//		From:     first.Id,
+//		To:       n.Id,
+//		Distance: n.DistanceTo(first),
+//	})
+//
+//	reporter.NewEdge(Edge{
+//		From:     second.Id,
+//		To:       n.Id,
+//		Distance: n.DistanceTo(second),
+//	})
+//
+//	first.Primary[fs] = n
+//	second.Primary[sf] = n
+//}
 
 // TODO: this doesn't create an optimal configuration at all. It always creates a very large, non cyclical tree.
 // 	Nodes should always have 3 primary -- the 3 closest nodes to it
@@ -79,7 +81,7 @@ func (n *Node) SpliceBetween(first *Node, second *Node) {
 // FindPrimary Returns the index of the primary connection with the specified ID
 func (n *Node) FindPrimary(id int) int {
 	for i, j := range n.Primary {
-		if j.Id == id {
+		if j.To.Id == id {
 			return i
 		}
 	}
